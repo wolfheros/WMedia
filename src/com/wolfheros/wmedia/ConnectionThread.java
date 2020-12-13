@@ -33,6 +33,7 @@ public class ConnectionThread implements Runnable {
             Util.logOutput("收到客户端链接: " + StaticValues.getCurrentTime(System.currentTimeMillis()));
             this.inputStream = new DataInputStream(this.socket.getInputStream());
             String sw = this.inputStream.readUTF();
+
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             String jsonString = SearchDatabase.getInstance(sw, sw, this.connection).call();
             WMedia.setResult(StaticValues.getString(SearchDatabase.trueWord(sw)), jsonString);

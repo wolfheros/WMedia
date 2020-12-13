@@ -13,35 +13,25 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class WMedia {
-    private static int EXECUTE_TIME = 0;
+    private static final int SCHEDULE_TIME = 6;
+    private static final int MYSQL_SCHEDULE_TIME = 15;
     private static final String HOME_PAGE = "https://ddrk.me/page/1/";
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
+    private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(2);
+    private static final ConcurrentHashMap<String, String> search_map = new ConcurrentHashMap<>();
+
+    private static Connection connection = DatabaseConnection.build();
+
+    private static int EXECUTE_TIME = 0;
     private static int REQUEST_COUNT = 0;
     private static int SELF_REQUEST_COUNT = 0;
-    private static Connection connection = DatabaseConnection.build();
-    private static final ExecutorService pool = Executors.newCachedThreadPool();
-    private static final ConcurrentHashMap<String, String> search_map = new ConcurrentHashMap<>();
+
     private static ServerSocket serverSocket;
-
-    private static void delayThread() {
-        /*
-        // Can't load method instructions: Load method exception: Unknown instruction: 'invoke-custom' in method: com.wolfheros.wmedia.WMedia.delayThread():void, dex: WMediav3.3.4.jar
-        */
-        throw new UnsupportedOperationException("Method not decompiled: com.wolfheros.wmedia.WMedia.delayThread():void");
-    }
-
-    private static void startSelfRequest() {
-        /*
-        // Can't load method instructions: Load method exception: Unknown instruction: 'invoke-custom' in method: com.wolfheros.wmedia.WMedia.startSelfRequest():void, dex: WMediav3.3.4.jar
-        */
-        throw new UnsupportedOperationException("Method not decompiled: com.wolfheros.wmedia.WMedia.startSelfRequest():void");
-    }
+    private static int tryTime = 0;
+    private static List<Items> listResource;
 
     static {
         try {
@@ -58,7 +48,12 @@ public class WMedia {
     }
 
     private static void waitingThread() {
-        startSelfRequest();
+        try {
+            executors.scheduleWithFixedDelay(WMedia::startSelfRequest,MYSQL_SCHEDULE_TIME,MYSQL_SCHEDULE_TIME,TimeUnit.SECONDS);
+        }catch (Exception e){
+            Util.logOutput("运行请求数据库自连出错");
+            e.printStackTrace();
+        }
         while (true) {
             try {
                 startSocketThread(serverSocket);
@@ -77,7 +72,7 @@ public class WMedia {
         }
     }
 
-    private static /* synthetic */ void lambda$delayThread$0() {
+    private static void delayThread() {
         try {
             synchronized (search_map) {
                 search_map.clear();
@@ -86,7 +81,7 @@ public class WMedia {
             int i = EXECUTE_TIME + 1;
             EXECUTE_TIME = i;
             Util.logOutput(append.append(i).append("\n").append(StaticValues.getCurrentTime(System.currentTimeMillis())).toString());
-            nonImpactFunction();
+            executors.scheduleWithFixedDelay(WMedia::nonImpactFunction,SCHEDULE_TIME,SCHEDULE_TIME,TimeUnit.HOURS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,7 +94,7 @@ public class WMedia {
         pool.submit(new ConnectionThread(search_map, serverSocket2.accept(), connection));
     }
 
-    private static /* synthetic */ void lambda$startSelfRequest$1() {
+    private static void startSelfRequest() {
         SearchDatabase.getInstance(StaticValues.TEST_VERSION_CODE, StaticValues.TEST_VERSION_CODE, connection).call();
         StringBuilder append = new StringBuilder().append("数据库自连次数：");
         int i = SELF_REQUEST_COUNT + 1;
@@ -107,10 +102,31 @@ public class WMedia {
         Util.logOutput(append.append(i).toString());
     }
 
-    private static void nonImpactFunction() throws Exception {
-        List<Items> list = MediaSelection.newInstance(HOME_PAGE).run();
-        getResource(list);
-        writeDatabase(list);
+    private static void getResourceList(){
+        listResource =  MediaSelection.newInstance(HOME_PAGE).run();
+    }
+
+    private static void getResource(){
+        try {
+            getResource(listResource);
+            tryTime = 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (tryTime < 1){
+                getResource();
+                tryTime += 1;
+            }
+        }
+    }
+
+    private static void nonImpactFunction() {
+        getResourceList();
+        getResource();
+        try {
+            writeDatabase(listResource);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void getResource(List<Items> list) throws InterruptedException, ExecutionException {

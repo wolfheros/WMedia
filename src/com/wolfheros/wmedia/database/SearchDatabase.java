@@ -71,8 +71,7 @@ public class SearchDatabase {
     private List<Items> get(String sql) {
         List<Items> list = new LinkedList<>();
         try {
-            if (this.connection.isClosed()) {
-            }
+            this.connection.isClosed();
             this.preparedStatement = this.connection.prepareStatement(sql);
             this.resultSet = this.preparedStatement.executeQuery();
             while (this.resultSet.next()) {
@@ -131,7 +130,7 @@ public class SearchDatabase {
         int i = 0;
         while (i < map.size()) {
             int i2 = i + 1;
-            Util.logOutput(JSONArray.toJSONString(map.get(Integer.valueOf(i2))));
+            Util.logOutput(JSONArray.toJSONString(map.get(i2)));
             i = i2 + 1;
         }
     }
@@ -139,73 +138,40 @@ public class SearchDatabase {
     private String getSQLString() {
         String sqlString;
         String str = this.sqlKeyWord;
-        char c = 65535;
-        switch (str.hashCode()) {
-            case -1851043190:
-                if (str.equals("CHINA_TV")) {
-                    c = 10;
-                    break;
-                }
+        char c = 999;
+        switch (str) {
+            case "CHINA_TV" :
+                c = 10;
                 break;
-            case -1107413452:
-                if (str.equals("JAPAN_M")) {
-                    c = 6;
-                    break;
-                }
+            case "JAPAN_M":
+                c = 6;
                 break;
-            case -389862556:
-                if (str.equals("ANIMATION")) {
-                    c = 8;
-                    break;
-                }
+            case "ANIMATION" :
+                c = 8;
                 break;
-            case 2615020:
-                if (str.equals("US_M")) {
-                    c = 2;
-                    break;
-                }
+            case "US_M":
+                c = 2;
                 break;
-            case 29921659:
-                if (str.equals("JAPAN_TV")) {
-                    c = 5;
-                    break;
-                }
+            case "JAPAN_TV":
+                c = 5;
                 break;
-            case 73234372:
-                if (str.equals("MEDIA")) {
-                    c = 4;
-                    break;
-                }
+            case "MEDIA":
+                c = 4;
                 break;
-            case 81065923:
-                if (str.equals("US_TV")) {
-                    c = 1;
-                    break;
-                }
+            case "US_TV":
+                c = 1;
                 break;
-            case 521559238:
-                if (str.equals("HOT_LINE")) {
-                    c = 0;
-                    break;
-                }
+            case "HOT_LINE":
+                c = 0;
                 break;
-            case 800713502:
-                if (str.equals("BANDAO_TV")) {
-                    c = 7;
-                    break;
-                }
+            case "BANDAO_TV":
+                c = 7;
                 break;
-            case 1373446743:
-                if (str.equals("KOREA_TV")) {
-                    c = 3;
-                    break;
-                }
+            case "KOREA_TV":
+                c = 3;
                 break;
-            case 1464309573:
-                if (str.equals("CHINA_M")) {
-                    c = 9;
-                    break;
-                }
+            case "CHINA_M":
+                c = 9;
                 break;
         }
         switch (c) {
@@ -252,7 +218,7 @@ public class SearchDatabase {
 
     private void preRun() {
         try {
-            if (!this.connection.getMetaData().getTables((String) null, (String) null, "media_table", (String[]) null).next()) {
+            if (!this.connection.getMetaData().getTables(null, null, "media_table", null).next()) {
                 this.connection.prepareStatement(StaticValues.CREATE_DATA_SQL).executeUpdate();
                 Util.logOutput("数据表不存在，创建数据表成功！");
             }

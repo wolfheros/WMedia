@@ -6,33 +6,42 @@ import java.util.Date;
 import java.util.List;
 
 public class StaticValues {
-    public static final String ALTER_TABLE_NEW_COLUMN = "ALTER TABLE media_table ADD MEDIA_URL varchar(400) NOT NULL DEFAULT 'n' AFTER MEDIA_NAME";
+
     public static final String ANIMATION = "动画";
-    public static final String ARTICLE = "article";
     public static final String BANDAO_TV = "扳道系";
-    public static final String BBR = "subsrc";
     public static final String CHINA_M = "华语电影";
     public static final String CHINA_TV = "华语剧";
-    public static final String CREATE_DATA_SQL = "CREATE TABLE media_resource.media_table (MEDIA_NAME varchar(400) NOT NULL, MEDIA_URL varchar(400) NOT NULL, IMAGE_URL varchar(400) NOT NULL, LABEL_VALUE varchar(400) NOT NULL, MAP_OBJECT blob NOT NULL, PRIMARY KEY (MEDIA_NAME)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
-    public static final String ENTRY = "entry";
     public static final String HOT_LINE = "热映中";
-    public static final String IF_COLUMN_EXIST = "SHOW COLUMNS FROM media_table LIKE 'MEDIA_URL'";
-    public static final String INSERT_DATA_SQL = "REPLACE INTO media_table(MEDIA_NAME, MEDIA_URL, IMAGE_URL, LABEL_VALUE, MAP_OBJECT) VALUES (?, ?, ?, ?, ?)";
     public static final String JAPAN_M = "日韩电影";
+    public static final String KOREA_TV = "韩剧";
     public static final String JAPAN_TV = "日剧";
-    public static final String JDBC_URL = "jdbc:mysql://localhost:3306/media_resource?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+    public static final String MEDIA = "综艺";
+    public static final String OTHER_TV = "其他地区";
+    public static final String US_M = "欧美电影";
+    public static final String US_TV = "欧美剧";
+
+    public static final String ARTICLE = "article";
+    public static final String BBR = "subsrc";
+    public static final String ENTRY = "entry";
     public static final String KEY = "?ddrkey=";
     public static final String KEY_VALUE = "src2";
-    public static final String KOREA_TV = "韩剧";
-    public static final String MEDIA = "综艺";
-    public static final int NOT_PS_CODE = 0;
-    public static final String OTHER_TV = "其他地区";
-    public static final String PASSWORD = "199219333";
     public static final String POST_CONTENT = "post-content";
-    public static final String PRE_URL = "https://service-k3jx48ay-1251906477.ap-hongkong.apigateway.myqcloud.com/release/hw";
-    public static final int PS_CODE = 1;
     public static final String RESOURCE_NAME = "caption";
     public static final String RESOURCE_URL = "src0";
+    public static final String PRE_URL = "https://service-k3jx48ay-1251906477.ap-hongkong.apigateway.myqcloud.com/release/hw";
+    public static final int NOT_PS_CODE = 0;
+    public static final int PS_CODE = 1;
+    public static final String TEST_VERSION_CODE = "_V3.1";
+    public static final String VERSION_CODE = "V3.1";
+
+    public static final String ALTER_TABLE_NEW_COLUMN = "ALTER TABLE media_table ADD MEDIA_URL varchar(400) NOT NULL DEFAULT 'n' AFTER MEDIA_NAME";
+    public static final String CREATE_DATA_SQL = "CREATE TABLE media_resource.media_table (MEDIA_NAME varchar(400) NOT NULL, MEDIA_URL varchar(400) NOT NULL, IMAGE_URL varchar(400) NOT NULL, LABEL_VALUE varchar(400) NOT NULL, MAP_OBJECT blob NOT NULL, PRIMARY KEY (MEDIA_NAME)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+    public static final String IF_COLUMN_EXIST = "SHOW COLUMNS FROM media_table LIKE 'MEDIA_URL'";
+    public static final String INSERT_DATA_SQL = "REPLACE INTO media_table(MEDIA_NAME, MEDIA_URL, IMAGE_URL, LABEL_VALUE, MAP_OBJECT) VALUES (?, ?, ?, ?, ?)";
+    public static final String JDBC_URL = "jdbc:mysql://localhost:3306/media_resource?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+    public static final int SOCKET_PORT = 51509;
+    public static final String USER = "root";
+    public static final String PASSWORD = "199219333";
     public static final String SELECT_ANIMATION = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%ANIMATION%'";
     public static final String SELECT_BANDAO_TV = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%BANDAO_TV%'";
     public static final String SELECT_CHINA_M = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%CHINA_M%'";
@@ -45,12 +54,6 @@ public class StaticValues {
     public static final String SELECT_OTHER_TV = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%OTHER_TV%'";
     public static final String SELECT_US_M = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%US_M%'";
     public static final String SELECT_US_TV = "SELECT MEDIA_NAME, MEDIA_URL, IMAGE_URL, MAP_OBJECT FROM media_table WHERE LABEL_VALUE LIKE '%US_TV%'";
-    public static final int SOCKET_PORT = 51509;
-    public static final String TEST_VERSION_CODE = "_V3.1";
-    public static final String USER = "root";
-    public static final String US_M = "欧美电影";
-    public static final String US_TV = "欧美剧";
-    public static final String VERSION_CODE = "V3.1";
 
     public static String[] getArray(Items items) {
         List<String> list = items.getStringList();
@@ -71,79 +74,42 @@ public class StaticValues {
     }
 
     public static String getString(String s) {
-        char c = 65535;
-        switch (s.hashCode()) {
-            case 685971:
-                if (s.equals(ANIMATION)) {
-                    c = 8;
-                    break;
-                }
+        char c = 99;
+        switch (s) {
+            case ANIMATION:
+                c = 8;
                 break;
-            case 829730:
-                if (s.equals(JAPAN_TV)) {
-                    c = 5;
-                    break;
-                }
+            case JAPAN_TV:
+                c = 5;
                 break;
-            case 1041150:
-                if (s.equals(MEDIA)) {
-                    c = 4;
-                    break;
-                }
+            case MEDIA:
+                c = 4;
                 break;
-            case 1226654:
-                if (s.equals(KOREA_TV)) {
-                    c = 3;
-                    break;
-                }
+            case KOREA_TV:
+                c = 3;
                 break;
-            case 21625832:
-                if (s.equals(CHINA_TV)) {
-                    c = 10;
-                    break;
-                }
+            case CHINA_TV:
+                c = 10;
                 break;
-            case 22644170:
-                if (s.equals("坂道系")) {
-                    c = 7;
-                    break;
-                }
+            case BANDAO_TV:
                 break;
-            case 27394560:
-                if (s.equals(US_TV)) {
-                    c = 1;
-                    break;
-                }
+            case US_TV:
+                c = 1;
                 break;
-            case 28612026:
-                if (s.equals(HOT_LINE)) {
-                    c = 0;
-                    break;
-                }
+            case HOT_LINE:
+                c = 0;
                 break;
-            case 641369642:
-                if (s.equals(OTHER_TV)) {
-                    c = 11;
-                    break;
-                }
+            case OTHER_TV:
+                c = 11;
                 break;
-            case 670701435:
-                if (s.equals(CHINA_M)) {
-                    c = 9;
-                    break;
-                }
+            case CHINA_M:
+                c = 9;
                 break;
-            case 815425152:
-                if (s.equals(JAPAN_M)) {
-                    c = 6;
-                    break;
-                }
+            case JAPAN_M:
+                c = 6;
                 break;
-            case 849532003:
-                if (s.equals(US_M)) {
-                    c = 2;
-                    break;
-                }
+            case US_M:
+                c = 2;
                 break;
         }
         switch (c) {
