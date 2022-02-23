@@ -10,7 +10,7 @@ public class DatabaseConnection {
     public static Connection connection = null;
 
     public static Connection build() {
-        Util.logOutput("启动数据库链接方法！");
+        Util.logOutput("DATABASE INITIAL");
         try {
             MysqlDataSource ds = new MysqlDataSource();
             ds.setUrl(StaticValues.JDBC_URL);
@@ -18,7 +18,7 @@ public class DatabaseConnection {
             ds.setPassword(StaticValues.PASSWORD);
             connection = ds.getConnection();
         } catch (SQLException sqlException) {
-            Util.logOutput("操作数据库过程中出错！");
+            Util.logOutput("ERROR DATABASE!");
             sqlException.printStackTrace();
         }
         return connection;

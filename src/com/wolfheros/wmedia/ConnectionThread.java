@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import static com.wolfheros.wmedia.util.Util.trueWord;
+
 public class ConnectionThread implements Runnable {
     private Connection connection;
     DataInputStream inputStream;
@@ -30,13 +32,13 @@ public class ConnectionThread implements Runnable {
 
     public void run() {
         try {
-            Util.logOutput("收到客户端链接: " + StaticValues.getCurrentTime(System.currentTimeMillis()));
+            Util.logOutput("DETECTED CLIENT REQUEST: " + StaticValues.getCurrentTime(System.currentTimeMillis()));
             this.inputStream = new DataInputStream(this.socket.getInputStream());
             String sw = this.inputStream.readUTF();
 
             this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             String jsonString = SearchDatabase.getInstance(sw, sw, this.connection).call();
-            WMedia.setResult(StaticValues.getString(SearchDatabase.trueWord(sw)), jsonString);
+            WMedia.setResult(StaticValues.getString(trueWord(sw)), jsonString);
             this.outputStream.writeObject(jsonString);
             this.outputStream.flush();
             try {

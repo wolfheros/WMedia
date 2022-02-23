@@ -61,11 +61,11 @@ public class MediaSelection {
                 if (!this.last_page && nextPage != null) {
                     Util.threadSleep();
                     this.home_page = nextPage;
-                    Util.logOutput("下一网站地址: " + nextPage + "\n当前获取资源数量：" + this.itemsList.size());
+                    Util.logOutput("NEXT WEBSITE" + nextPage + "\n CURRENT ITEMS " + this.itemsList.size());
                     urlSelector();
                 }
             } else if (!this.doc_null) {
-                Util.logOutput("获取document失败");
+                Util.logOutput("FAILED REQUEST Documents ");
                 this.doc_null = true;
                 urlSelector();
             }

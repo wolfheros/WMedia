@@ -3,10 +3,13 @@ package com.wolfheros.wmedia;
 import com.wolfheros.wmedia.database.DatabaseConnection;
 import com.wolfheros.wmedia.database.SearchDatabase;
 import com.wolfheros.wmedia.database.StoreDatabase;
+import com.wolfheros.wmedia.http.HttpApiKt;
 import com.wolfheros.wmedia.util.Util;
 import com.wolfheros.wmedia.value.ItemEpisode;
 import com.wolfheros.wmedia.value.Items;
 import com.wolfheros.wmedia.value.StaticValues;
+import io.ktor.server.netty.EngineMain;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.sql.Connection;
@@ -42,31 +45,42 @@ public class WMedia {
     }
 
     public static void main(String[] args) throws Exception {
+        startHttpApi();
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
         delayThread();
         waitingThread();
+    }
+
+    private static void startHttpApi(){
+        try {
+            HttpApiKt.startApi();
+        }catch (Exception exception){
+            Util.logOutput("start http api get error");
+            exception.printStackTrace();
+            HttpApiKt.restartApi();
+        }
     }
 
     private static void waitingThread() {
         try {
             executors.scheduleWithFixedDelay(WMedia::startSelfRequest,MYSQL_SCHEDULE_TIME,MYSQL_SCHEDULE_TIME,TimeUnit.SECONDS);
         }catch (Exception e){
-            Util.logOutput("运行请求数据库自连出错");
+            Util.logOutput("DATABASE RUNTIME ERROR");
             e.printStackTrace();
         }
         while (true) {
             try {
                 startSocketThread(serverSocket);
-                StringBuilder append = new StringBuilder().append("网络请求次数：");
+                StringBuilder append = new StringBuilder().append("DATA REQUEST TIMES: ");
                 int i = REQUEST_COUNT + 1;
                 REQUEST_COUNT = i;
                 Util.logOutput(append.append(i).toString());
             } catch (IOException | SQLException e) {
-                StringBuilder append2 = new StringBuilder().append("网络请求次数：");
+                StringBuilder append2 = new StringBuilder().append("DATA REQUEST TIMES: ");
                 int i2 = REQUEST_COUNT + 1;
                 REQUEST_COUNT = i2;
                 Util.logOutput(append2.append(i2).toString());
-                Util.logOutput("抛出 EOFException");
+                Util.logOutput("THROW EOFException");
                 return;
             }
         }
@@ -77,7 +91,7 @@ public class WMedia {
             synchronized (search_map) {
                 search_map.clear();
             }
-            StringBuilder append = new StringBuilder().append("开始执行延迟任务: ");
+            StringBuilder append = new StringBuilder().append("START DECOMPILE JOBS: ");
             int i = EXECUTE_TIME + 1;
             EXECUTE_TIME = i;
             Util.logOutput(append.append(i).append("\n").append(StaticValues.getCurrentTime(System.currentTimeMillis())).toString());
@@ -96,7 +110,7 @@ public class WMedia {
 
     private static void startSelfRequest() {
         SearchDatabase.getInstance(StaticValues.TEST_VERSION_CODE, StaticValues.TEST_VERSION_CODE, connection).call();
-        StringBuilder append = new StringBuilder().append("数据库自连次数：");
+        StringBuilder append = new StringBuilder().append("DATABASE SELF CONNECTION: ");
         int i = SELF_REQUEST_COUNT + 1;
         SELF_REQUEST_COUNT = i;
         Util.logOutput(append.append(i).toString());
@@ -133,7 +147,7 @@ public class WMedia {
         int i = 0;
         for (Items items : list) {
             i++;
-            Util.logOutput("当前第" + i + "个item，项目名称：" + items.getName());
+            Util.logOutput("CURRENT " + i + " ITEMS, NAME: " + items.getName());
             Future<Map<Integer, List<ItemEpisode>>> future = pool.submit(new MediaCollection(items));
             if (future.get() == null || future.get().size() <= 0) {
                 list.remove(items);
@@ -147,7 +161,7 @@ public class WMedia {
         for (Items items : list) {
             StoreDatabase.getInstance(items, connection).getConnection();
         }
-        Util.logOutput("数据库操作队列已结束。" + StaticValues.getCurrentTime(System.currentTimeMillis()));
+        Util.logOutput("DATABASE OPERATION FINISHED" + StaticValues.getCurrentTime(System.currentTimeMillis()));
     }
 
     public static void setResult(String key, String jr) {

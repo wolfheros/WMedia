@@ -73,6 +73,37 @@ public class StaticValues {
         return s.toString();
     }
 
+    public static String getKindApi(int id){
+        switch (id) {
+            case 0:
+                return "HOT_LINE";
+            case 1:
+                return "US_TV";
+            case 2:
+                return "US_M";
+            case 3:
+                return "KOREA_TV";
+            case 4:
+                return "MEDIA";
+            case 5:
+                return "JAPAN_TV";
+            case 6:
+                return "JAPAN_M";
+            case 7:
+                return "BANDAO_TV";
+            case 8:
+                return "ANIMATION";
+            case 9:
+                return "CHINA_M";
+            case 10:
+                return "CHINA_TV";
+            case 11:
+                return "OTHER_TV";
+            default:
+                return null;
+        }
+    }
+
     public static String getString(String s) {
         char c = 99;
         switch (s) {

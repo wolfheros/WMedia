@@ -19,9 +19,6 @@ public class InfoThreadProvider {
         this.it = items;
     }
 
-    private InfoThreadProvider() {
-    }
-
     private void setmUri(Document document) {
         this.doc = document;
     }
@@ -42,7 +39,15 @@ public class InfoThreadProvider {
 
     public void getInfo() {
         try {
-            this.it.setImage_url(this.doc.select("main").first().getElementsByClass("type-post").first().getElementsByClass(StaticValues.POST_CONTENT).first().getElementsByClass(StaticValues.ENTRY).first().getElementsByClass("doulist-item").first().getElementsByClass("mod").first().getElementsByClass("doulist-subject").first().getElementsByClass("post").select("img").first().absUrl("src"));
+            this.it.setImage_url(this.doc.select("main").first()
+                    .getElementsByClass("type-post").first()
+                    .getElementsByClass(StaticValues.POST_CONTENT).first()
+                    .getElementsByClass(StaticValues.ENTRY).first()
+                    .getElementsByClass("doulist-item").first()
+                    .getElementsByClass("mod").first()
+                    .getElementsByClass("doulist-subject").first()
+                    .getElementsByClass("post").select("img").first()
+                    .absUrl("src"));
         } catch (NullPointerException nullPointerException) {
             Util.logOutput("获取:\n" + this.it.getName() + " 照片过程中出现错误!\n");
             nullPointerException.printStackTrace();

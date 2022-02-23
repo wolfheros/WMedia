@@ -45,17 +45,17 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
 
     /* access modifiers changed from: package-private */
     public void getEachEpisode(String url) {
-        Util.logOutput("启动下载每一部影视方法");
+        Util.logOutput("NEXT MEDIA START: ");
         try {
             System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
             Document document = Jsoup.connect(url).get();
             InfoThreadProvider.getInstance(document, this.mItems).getInfo();
             Elements elements = document.getElementsByTag(StaticValues.ARTICLE).first().getElementsByClass(StaticValues.POST_CONTENT).first().getElementsByClass(StaticValues.ENTRY);
-            this.linkMap.put(Integer.valueOf(this.mapKey), getPlayList(elements.first().getElementsByClass("wp-playlist").first()));
+            this.linkMap.put(this.mapKey, getPlayList(elements.first().getElementsByClass("wp-playlist").first()));
             Element elementSeason = elements.first().getElementsByClass("page-links").first();
             if (elementSeason != null) {
                 String nextSeason = getSeasonLink(elementSeason);
-                Util.logOutput(this.mItems.getName() + " 下一季的链接地址：" + nextSeason);
+                Util.logOutput(this.mItems.getName() + " NEXT SEASON: " + nextSeason);
                 if (nextSeason != null) {
                     this.mapKey++;
                     getEachEpisode(nextSeason);
@@ -63,14 +63,14 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
                 }
                 return;
             }
-            Util.logOutput("未获取到 page-links class， 当前季数：" + this.mapKey);
+            Util.logOutput("NO page-links class, CURRENT SEASON: " + this.mapKey);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
     private List<ItemEpisode> getPlayList(Element element) {
-        Util.logOutput("获取每一集！");
+        Util.logOutput("GET EACH EPISODE: ");
         List<ItemEpisode> list = new LinkedList<>();
         try {
             Iterator it = ((JSONArray) new JSONParser().parse((Reader) new StringReader(((JSONObject) new JSONParser().parse((Reader) new StringReader(element.getElementsByTag("script").first().data()))).get("tracks").toString()))).iterator();
@@ -85,10 +85,10 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
                 list.add(item);
             }
         } catch (Exception ioException) {
-            Util.logOutput("获取集数方法出错");
+            Util.logOutput("FAILED GET EPISODE");
             ioException.printStackTrace();
         }
-        Util.logOutput("获取到：" + list.size() + "集数");
+        Util.logOutput("GET" + list.size() + "EPISODES");
         return list;
     }
 
