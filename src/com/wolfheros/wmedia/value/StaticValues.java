@@ -7,18 +7,18 @@ import java.util.List;
 
 public class StaticValues {
 
-    public static final String ANIMATION = "动画";
+    public static final String ANIMATION = "ANIMATION";
     public static final String BANDAO_TV = "扳道系";
     public static final String CHINA_M = "华语电影";
     public static final String CHINA_TV = "华语剧";
     public static final String HOT_LINE = "热映中";
-    public static final String JAPAN_M = "日韩电影";
+    public static final String JAPAN_M = "JAPAN_M";
     public static final String KOREA_TV = "韩剧";
-    public static final String JAPAN_TV = "日剧";
+    public static final String JAPAN_TV = "JAPAN_TV";
     public static final String MEDIA = "综艺";
     public static final String OTHER_TV = "其他地区";
-    public static final String US_M = "欧美电影";
-    public static final String US_TV = "欧美剧";
+    public static final String US_M = "US_M";
+    public static final String US_TV = "US_TV";
 
     public static final String ARTICLE = "article";
     public static final String BBR = "subsrc";
@@ -35,7 +35,7 @@ public class StaticValues {
     public static final String VERSION_CODE = "V3.1";
 
     public static final String ALTER_TABLE_NEW_COLUMN = "ALTER TABLE media_table ADD MEDIA_URL varchar(400) NOT NULL DEFAULT 'n' AFTER MEDIA_NAME";
-    public static final String CREATE_DATA_SQL = "CREATE TABLE media_resource.media_table (MEDIA_NAME varchar(400) NOT NULL, MEDIA_URL varchar(400) NOT NULL, IMAGE_URL varchar(400) NOT NULL, LABEL_VALUE varchar(400) NOT NULL, MAP_OBJECT blob NOT NULL, PRIMARY KEY (MEDIA_NAME)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+    public static final String CREATE_DATA_SQL = "CREATE TABLE media_resource.media_table (MEDIA_NAME varchar(400) NOT NULL, MEDIA_URL varchar(400) NOT NULL, IMAGE_URL varchar(400) NOT NULL, LABEL_VALUE varchar(400) NOT NULL, MAP_OBJECT text NOT NULL, PRIMARY KEY (MEDIA_NAME)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
     public static final String IF_COLUMN_EXIST = "SHOW COLUMNS FROM media_table LIKE 'MEDIA_URL'";
     public static final String INSERT_DATA_SQL = "REPLACE INTO media_table(MEDIA_NAME, MEDIA_URL, IMAGE_URL, LABEL_VALUE, MAP_OBJECT) VALUES (?, ?, ?, ?, ?)";
     public static final String JDBC_URL = "jdbc:mysql://localhost:3306/media_resource?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";

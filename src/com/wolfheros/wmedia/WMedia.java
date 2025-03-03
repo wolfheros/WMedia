@@ -1,6 +1,6 @@
 package com.wolfheros.wmedia;
 
-import com.wolfheros.wmedia.database.DatabaseConnection;
+import com.wolfheros.wmedia.database.DatabaseHelper;
 import com.wolfheros.wmedia.database.SearchDatabase;
 import com.wolfheros.wmedia.database.StoreDatabase;
 import com.wolfheros.wmedia.http.HttpApiKt;
@@ -8,7 +8,6 @@ import com.wolfheros.wmedia.util.Util;
 import com.wolfheros.wmedia.value.ItemEpisode;
 import com.wolfheros.wmedia.value.Items;
 import com.wolfheros.wmedia.value.StaticValues;
-import io.ktor.server.netty.EngineMain;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,38 +15,37 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class WMedia {
-    private static final int SCHEDULE_TIME = 6;
     private static final int MYSQL_SCHEDULE_TIME = 15;
-    private static final String HOME_PAGE = "https://ddrk.me/page/1/";
+    private static final String HOME_PAGE = "https://ddys.mov/page/1/";
     private static final ExecutorService pool = Executors.newCachedThreadPool();
     private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(2);
     private static final ConcurrentHashMap<String, String> search_map = new ConcurrentHashMap<>();
 
-    private static Connection connection = DatabaseConnection.build();
+    private static Connection connection = DatabaseHelper.build();
 
-    private static int EXECUTE_TIME = 0;
     private static int REQUEST_COUNT = 0;
     private static int SELF_REQUEST_COUNT = 0;
 
     private static ServerSocket serverSocket;
-    private static int tryTime = 0;
-    private static List<Items> listResource;
+    private static Set<Items> itemsSet;
 
     static {
         try {
             serverSocket = new ServerSocket(StaticValues.SOCKET_PORT);
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            Util.logOutput("Open Socket error: " + ioException.getMessage());
         }
     }
 
     public static void main(String[] args) throws Exception {
-        startHttpApi();
-        Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-        delayThread();
+//        startHttpApi();
+        Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
+        FetchDataFromInternet();
+//        scheduleWork();
         waitingThread();
     }
 
@@ -55,8 +53,7 @@ public class WMedia {
         try {
             HttpApiKt.startApi();
         }catch (Exception exception){
-            Util.logOutput("start http api get error");
-            exception.printStackTrace();
+            Util.logOutput("start http api get error" + exception.getMessage());
             HttpApiKt.restartApi();
         }
     }
@@ -86,24 +83,9 @@ public class WMedia {
         }
     }
 
-    private static void delayThread() {
-        try {
-            synchronized (search_map) {
-                search_map.clear();
-            }
-            StringBuilder append = new StringBuilder().append("START DECOMPILE JOBS: ");
-            int i = EXECUTE_TIME + 1;
-            EXECUTE_TIME = i;
-            Util.logOutput(append.append(i).append("\n").append(StaticValues.getCurrentTime(System.currentTimeMillis())).toString());
-            executors.scheduleWithFixedDelay(WMedia::nonImpactFunction,SCHEDULE_TIME,SCHEDULE_TIME,TimeUnit.HOURS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void startSocketThread(ServerSocket serverSocket2) throws IOException, SQLException {
         if (connection == null || connection.isClosed()) {
-            connection = DatabaseConnection.build();
+            connection = DatabaseHelper.build();
         }
         pool.submit(new ConnectionThread(search_map, serverSocket2.accept(), connection));
     }
@@ -116,50 +98,42 @@ public class WMedia {
         Util.logOutput(append.append(i).toString());
     }
 
-    private static void getResourceList(){
-        listResource =  MediaSelection.newInstance(HOME_PAGE).run();
+    private static void FetchMediaList(){
+        itemsSet =  MediaSelection.newInstance(HOME_PAGE).run();
     }
 
-    private static void getResource(){
+    private static void FetchDataFromInternet() {
+        FetchMediaList();
+        getResource(itemsSet);
         try {
-            getResource(listResource);
-            tryTime = 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (tryTime < 1){
-                getResource();
-                tryTime += 1;
-            }
-        }
-    }
-
-    private static void nonImpactFunction() {
-        getResourceList();
-        getResource();
-        try {
-            writeDatabase(listResource);
+            DatabaseHelper.initialConnection();
+            writeDatabase(itemsSet);
         } catch (SQLException e) {
-            e.printStackTrace();
+            Util.logOutput("DATABASE RUNTIME ERROR");
         }
     }
 
-    private static void getResource(List<Items> list) throws InterruptedException, ExecutionException {
+    private static void getResource(Set<Items> itemsSet) {
         int i = 0;
-        for (Items items : list) {
+        for (Items item : itemsSet) {
             i++;
-            Util.logOutput("CURRENT " + i + " ITEMS, NAME: " + items.getName());
-            Future<Map<Integer, List<ItemEpisode>>> future = pool.submit(new MediaCollection(items));
-            if (future.get() == null || future.get().size() <= 0) {
-                list.remove(items);
-            } else {
-                items.setSourceMap(future.get());
+            Util.logOutput("CURRENT " + i + " ITEMS, NAME: " + item.getName());
+            try {
+                Future<Map<Integer, List<ItemEpisode>>> future = pool.submit(new MediaCollection(item));
+                if (future.get() == null || future.get().isEmpty()) {
+                    Util.logOutput("Something went wrong in currency");
+                } else {
+                    item.setSourceMap(future.get());
+                }
+            }catch (Exception e) {
+                Util.logOutput("Something went wrong in currency");
             }
         }
     }
 
-    public static void writeDatabase(List<Items> list) throws SQLException {
-        for (Items items : list) {
-            StoreDatabase.getInstance(items, connection).getConnection();
+    public static void writeDatabase(Set<Items> itemsSet) throws SQLException {
+        for (Items item : itemsSet) {
+            StoreDatabase.getInstance(item, connection).storeData();
         }
         Util.logOutput("DATABASE OPERATION FINISHED" + StaticValues.getCurrentTime(System.currentTimeMillis()));
     }

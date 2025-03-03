@@ -48,7 +48,7 @@ public class CustomerJSON {
 
     public static String itemsListToJSOn(List<Items> list) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (list.size() != 0) {
+        if (!list.isEmpty()) {
             stringBuilder.append('[');
             for (int i = 0; i < list.size(); i++) {
                 if (i == list.size() - 1) {

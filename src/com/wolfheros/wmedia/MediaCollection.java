@@ -4,13 +4,10 @@ import com.wolfheros.wmedia.util.Util;
 import com.wolfheros.wmedia.value.ItemEpisode;
 import com.wolfheros.wmedia.value.Items;
 import com.wolfheros.wmedia.value.StaticValues;
-import java.io.Reader;
+
+import java.io.IOException;
 import java.io.StringReader;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -48,7 +45,7 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
         Util.logOutput("NEXT MEDIA START: ");
         try {
             System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
-            Document document = Jsoup.connect(url).get();
+            Document document = Jsoup.connect(url).userAgent("Mozilla").get();
             InfoThreadProvider.getInstance(document, this.mItems).getInfo();
             Elements elements = document.getElementsByTag(StaticValues.ARTICLE).first().getElementsByClass(StaticValues.POST_CONTENT).first().getElementsByClass(StaticValues.ENTRY);
             this.linkMap.put(this.mapKey, getPlayList(elements.first().getElementsByClass("wp-playlist").first()));
@@ -64,8 +61,8 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
                 return;
             }
             Util.logOutput("NO page-links class, CURRENT SEASON: " + this.mapKey);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (IOException | NullPointerException exception) {
+            Util.logOutput(exception.getMessage());
         }
     }
 
@@ -73,9 +70,10 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
         Util.logOutput("GET EACH EPISODE: ");
         List<ItemEpisode> list = new LinkedList<>();
         try {
-            Iterator it = ((JSONArray) new JSONParser().parse((Reader) new StringReader(((JSONObject) new JSONParser().parse((Reader) new StringReader(element.getElementsByTag("script").first().data()))).get("tracks").toString()))).iterator();
-            while (it.hasNext()) {
-                Object o = it.next();
+            for (Object o : (JSONArray) new JSONParser()
+                    .parse(new StringReader(((JSONObject) new JSONParser()
+                            .parse(new StringReader(
+                                    element.getElementsByTag("script").first().data()))).get("tracks").toString()))) {
                 ItemEpisode item = new ItemEpisode();
                 JSONObject j = (JSONObject) o;
                 item.setBbr(j.get(StaticValues.BBR).toString());
@@ -106,9 +104,5 @@ public class MediaCollection implements Callable<Map<Integer, List<ItemEpisode>>
             }
         }
         return null;
-    }
-
-    public Map<Integer, List<ItemEpisode>> getLinkMap() {
-        return this.linkMap;
     }
 }
